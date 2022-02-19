@@ -5,15 +5,24 @@ const ctx = canvas.getContext("2d");
 const colors = document.getElementsByClassName("jsColor");
 const range = document.getElementById("jsRange");
 const mode = document.getElementById("jsMode");
+const save = document.getElementById("jsSave");
 
-canvas.width = 700;
-canvas.height = 700;
+const INITIAL_COLOR = "#2c2c2c";
+const CANVAS_SIZE = 700;
 
-ctx.strokeStyle = "#2c2c2c";
+canvas.width = CANVAS_SIZE;
+canvas.height = CANVAS_SIZE;
+ctx.fillStyle = "white";
+ctx.fillRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+/* cavvas는 위 코드부터 아래 코드로 실행되어서 처음 fillStyle이 white였다가
+나중에 밑의 코드에서는 black이 된다.*/
+ctx.strokeStyle = INITIAL_COLOR;
+ctx.fillStyle = INITIAL_COLOR;
 ctx.lineWidth = 2.5;
 
 
 let painting = false;
+
 let filling = false;
 
 
@@ -47,6 +56,7 @@ function onMouseMove(event) {
 function handleColorClick(event) {
     const color = event.target.style.backgroundColor;
     ctx.strokeStyle = color;
+    ctx.fillStyle = color;
 }
 
 function handleRangeChange(event) {
@@ -65,11 +75,36 @@ function handleModeClick() {
     }
 }
 
+function handleCanvasClick() {
+    if(filling) {
+        ctx.fillRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+    }
+    // fillRect메소드는 canvas의 사각형을 가장 최근의 fillStyle로 채워줌.
+}
+
+function handleRightClick(event) {
+    event.preventDefault();
+
+}
+
+function handleSaveImage () {
+    const image = canvas.toDataURL("image/jpeg");
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = "PaingJS";
+    // a 태그의 attribute인 download는 링크를 복사하도록 해준다. 
+    link.click();   // 클릭을 거짓으로 만드는부분(?)
+
+}
+
+
 if(canvas) {
     canvas.addEventListener("mousemove",onMouseMove);
     canvas.addEventListener("mousedown",startPainting);
     canvas.addEventListener("mouseup", stopPainting);
     canvas.addEventListener("mouseleave",stopPainting);
+    canvas.addEventListener("click",handleCanvasClick);
+    canvas.addEventListener("contextmenu",handleRightClick);
 }
 
 Array.from(colors).forEach(color =>
@@ -82,4 +117,8 @@ if(range) {
 
 if(mode) {
     mode.addEventListener("click",handleModeClick);
+}
+
+if(save) {
+    save.addEventListener("click",handleSaveImage);
 }
